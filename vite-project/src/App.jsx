@@ -1,83 +1,55 @@
 import { uid } from "uid";
-import { useState } from 'react';
-import './App.css';
+import { useState, useEffect } from "react";
+import "./App.css";
 
 function App() {
-  const [toDos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
+  const [toDos, setToDos] = useState([]);
+  const [todo, setTodo] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
-  const [editedTodo, setEditedTodo] = useState('');
-  const [checkedState, setCheckedState] = useState([]);
-
-  const addList = (e) => {
+  const [editTodo, setEditTodo] = useState("");
+  const addEditToDo = (e) => {
     e.preventDefault();
     if (editMode) {
-      const updatedTodos = [...toDos];
-      updatedTodos[editIndex] = { text: editedTodo.trim(), checked: checkedState[editIndex] };
-      setTodos(updatedTodos);
-      setEditMode(false);
+      const updatedData = [...toDos];
+      updatedData[editIndex] = editTodo;
+      setToDos(updatedData);
       setEditIndex(null);
-      setEditedTodo('');
+      setEditMode(false);
     } else {
-      setTodos([...toDos, { text: newTodo.trim(), checked: false }]);
-      setNewTodo('');
-      setCheckedState([...checkedState, false]);
+      setToDos([...toDos, todo]);
     }
-  };
-  const deleteTodo = (index) => {
-    const afterDeleting = [...toDos];
-    afterDeleting.splice(index, 1);
-    setTodos(afterDeleting);
-    const updatedCheckedState = [...checkedState];
-    updatedCheckedState.splice(index, 1);
-    setCheckedState(updatedCheckedState);
+    setTodo("");
   };
 
-  const startEdit = (index, todo) => {
+  const updateData = (task, index) => {
     setEditMode(true);
     setEditIndex(index);
-    setEditedTodo(todo.text);
+    setEditTodo(task);
   };
-
-  const handleCheckboxChange = (index) => {
-    const updatedCheckedState = [...checkedState];
-    updatedCheckedState[index] = !updatedCheckedState[index];
-    setCheckedState(updatedCheckedState);
-  };
-
   return (
     <>
-      <h1>ToDo App</h1>
+      <h1>ToDo app</h1>
+      <form>
+        <input
+          value={editMode ? editTodo : todo}
+          onChange={(e) =>
+            editMode ? setEditTodo(e.target.value) : setTodo(e.target.value)
+          }
+        />
+        <button onClick={addEditToDo}>Add</button>
+      </form>
       <div>
-        <form>
-          <input
-            value={editMode ? editedTodo : newTodo}
-            onChange={(e) => (editMode ? setEditedTodo(e.target.value) : setNewTodo(e.target.value))}
-          />
-          <button onClick={addList}>{editMode ? 'Kaydet' : 'Ekle'}</button>
-        </form>
-
-        <div>
-          <ul>
-            {toDos.map((todo, index) => (
-              <div key={uid()}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={checkedState[index]}
-                    onChange={() => handleCheckboxChange(index)}
-                  />
-                  <p style={{ textDecoration: checkedState[index] ? 'line-through' : 'none' }}>
-                    {todo.text}
-                  </p>
-                </label>
-                <button onClick={() => deleteTodo(index)}>Sil</button>
-                <button onClick={() => startEdit(index, todo)}>Düzenle</button>
-              </div>
-            ))}
-          </ul>
-        </div>
+        <h3>Lists</h3>
+        {toDos.map((task, index) => {
+          return (
+            <div key={index}>
+              {task}
+              <button>delete</button>
+              <button onClick={() => updateData(task, index)}>update</button>
+            </div>
+          );
+        })}
       </div>
     </>
   );
