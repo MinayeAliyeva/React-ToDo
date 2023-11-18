@@ -8,24 +8,37 @@ function App() {
   const [editMode, setEditMode] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [editTodo, setEditTodo] = useState("");
+  const [isCheckedList, setIsCheckedList] = useState(
+    Array(toDos.length).fill(false)
+  );
+  
   const addEditToDo = (e) => {
     e.preventDefault();
     if (editMode) {
       const updatedData = [...toDos];
-      updatedData[editIndex] = editTodo;
+      updatedData[editIndex] = {
+        text: editTodo,
+        isChecked: isCheckedList[editIndex],
+      };
       setToDos(updatedData);
       setEditIndex(null);
       setEditMode(false);
     } else {
-      setToDos([...toDos, todo]);
+      setToDos([...toDos, { text: todo, isChecked: false }]);
     }
     setTodo("");
+    setIsCheckedList([...isCheckedList, false]);
   };
 
   const updateData = (task, index) => {
     setEditMode(true);
     setEditIndex(index);
-    setEditTodo(task);
+    setEditTodo(task.text);
+  };
+  const deleteData = (index) => {
+    const afterDeleting = [...toDos];
+    afterDeleting.splice(index, 1);
+    setToDos(afterDeleting);
   };
   return (
     <>
@@ -44,8 +57,24 @@ function App() {
         {toDos.map((task, index) => {
           return (
             <div key={index}>
-              {task}
-              <button>delete</button>
+              <input
+                type="checkbox"
+                checked={isCheckedList[index]}
+                onChange={() => {
+                  const updatedIsCheckedList = [...isCheckedList];
+                  updatedIsCheckedList[index] = !isCheckedList[index];
+                  setIsCheckedList(updatedIsCheckedList);
+                }}
+              />
+              <span
+                style={{
+                  textDecoration: isCheckedList[index] ? "line-through" : "",
+                }}
+              >
+                {task.text}
+              </span>
+
+              <button onClick={() => deleteData(index)}>delete</button>
               <button onClick={() => updateData(task, index)}>update</button>
             </div>
           );
